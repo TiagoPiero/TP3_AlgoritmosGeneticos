@@ -4,7 +4,6 @@ from clases import pais
 
 
 #Funciones
-
 def menu():
     while (True):
         print("1. Ingresar capital")

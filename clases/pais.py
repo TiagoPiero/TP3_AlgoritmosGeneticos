@@ -1,16 +1,28 @@
 # import xlwings as xw
 import pandas as pd
-from tabulate import tabulate
+import folium 
+from geopy.geocoders import Nominatim
+
 class pais:
     ciudades = []
     distancias = [] #matriz de distancias entre ciudades
-
+    coordenadas = [] #coordenadas de las ciudades
     def __init__(self):
         df = pd.read_excel('clases\TablaCapitales.xlsx')
         df_ciudad = df.iloc[:0,1:25]
         self.ciudades = df_ciudad.columns
         df_distancias = df.iloc[:24,:25]
         self.distancias = df_distancias
+
+        #latitud y longitud de las ciudades
+        geolocator = Nominatim(user_agent="geolocalizacionCiudadesAG", timeout=5)
+        for i in self.ciudades:
+           location = geolocator.geocode('Argentina,'+i)
+           if(location != None):
+               rowCiudadLocation = [i,location.latitude,location.longitude]
+               self.coordenadas.append(rowCiudadLocation) 
+        print(len(self.coordenadas))
+
 
     def mostrarCiudades(self):
         for i in self.ciudades:
@@ -59,5 +71,20 @@ class pais:
         print("----------------------------------------------------------------------")
         print("----------------------------------------------------------------------")
         print("Distancia total recorrida: ",sumaKilometros,"km")
-
+        m = folium.Map(
+            location=[-31.431276116867238, -64.19324578122779],
+            zoom_start=0,
+            )
+        for i in self.coordenadas:
+            folium.Marker([i[1],i[2]], popup=i[0]).add_to(m)
+        
+        soloCoordenadas = []
+        for i in secuencia_viaje:
+            for j in self.coordenadas:
+                if(i == j[0]):
+                    soloCoordenadas.append([j[1],j[2]])
+                    break
+        folium.PolyLine(locations=soloCoordenadas, color="red", weight=2.5, opacity=1).add_to(m)
+        # folium.PolyLine(locations=self.coordenadas, color="red", weight=2.5, opacity=1).add_to(m)
+        m.save('map.html')
 
