@@ -28,14 +28,14 @@ def ingresar_capital(pais):
         opcion = int(input("Ingrese una ciudad (1-24): "))
         if(opcion > 0 and opcion < 25):
             break
-    pais.calcularDistanciaMinima(pais.ciudades[opcion-1])
+    pais.calcularDistanciaMinima(opcion-1)
 
 
 def mostrar_capitales(pais):
     pais.mostrarCiudades()
 
 def calcular_distancia(pais):
-    pass
+    pais.mostrarDistancias()
 
 
 #programa principal
