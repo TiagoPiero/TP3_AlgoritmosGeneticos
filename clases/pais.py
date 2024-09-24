@@ -36,6 +36,8 @@ class pais:
 
     def calcularDistanciaMinima(self, indexCiudad):
         sumaKilometros = 0
+        indicePrimeraCiudad = indexCiudad
+        indiceUltimaCiudad = -1
         ciudad = self.ciudades[indexCiudad]
         print("calculando distancia minima")
         ciudad_distancias = self.calculaDistanciasDadaCiudad(indexCiudad)
@@ -64,8 +66,16 @@ class pais:
                     secuencia_viaje.append(self.ciudades[k])
                     ciudad_distancias = self.calculaDistanciasDadaCiudad(k) #esto esta bien,ya corroboré
                     print("distancias desde la ciudad: ",self.ciudades[k], "son: ",ciudad_distancias)
-                    indexCiudad = k
+                    indiceUltimaCiudad = k
                     break
+        
+        secuencia_viaje.append(secuencia_viaje[0])
+        #calcular distancia de retorno
+        ciudad_distancias = self.calculaDistanciasDadaCiudad(indicePrimeraCiudad)
+        distanciaRetorno = ciudad_distancias.iloc[indiceUltimaCiudad+1]
+        print("distancia de retorno: ",distanciaRetorno)
+        sumaKilometros = sumaKilometros + distanciaRetorno
+        
         print("----------------------------------------------------------------------")
         print("Secuencia de viaje: ",secuencia_viaje)
         print("----------------------------------------------------------------------")
