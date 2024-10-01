@@ -8,7 +8,7 @@ class pais:
     distancias = [] #matriz de distancias entre ciudades
     coordenadas = [] #coordenadas de las ciudades
     def __init__(self):
-        df = pd.read_excel('clases\TablaCapitales.xlsx')
+        df = pd.read_excel('clases/TablaCapitales.xlsx')
         df_ciudad = df.iloc[:0,1:25]
         self.ciudades = df_ciudad.columns
         df_distancias = df.iloc[:24,:25]
@@ -21,9 +21,30 @@ class pais:
            if(location != None):
                rowCiudadLocation = [i,location.latitude,location.longitude]
                self.coordenadas.append(rowCiudadLocation) 
-        print(len(self.coordenadas))
+        # print(len(self.coordenadas))
 
-
+    def generarMapa(self, secuencia_viaje, opcionMenu):
+        m = folium.Map(
+                location=[-31.431276116867238, -64.19324578122779],
+                zoom_start=0,
+                )
+        for i in self.coordenadas:
+            folium.Marker([i[1],i[2]], popup=i[0]).add_to(m)
+        
+        soloCoordenadas = []
+        for i in secuencia_viaje:
+            for j in self.coordenadas:
+                if(i == j[0]):
+                    soloCoordenadas.append([j[1],j[2]])
+                    break
+        folium.PolyLine(locations=soloCoordenadas, color="red", weight=2.5, opacity=1).add_to(m)
+        # folium.PolyLine(locations=self.coordenadas, color="red", weight=2.5, opacity=1).add_to(m)
+        
+        if opcionMenu == 1:
+            m.save(f'mapa_{secuencia_viaje[0]}.html')
+        else:
+            m.save(f'mapa2_{secuencia_viaje[0]}.html')
+    
     def mostrarCiudades(self):
         for i in self.ciudades:
             print(i)
@@ -39,7 +60,6 @@ class pais:
         indicePrimeraCiudad = indexCiudad
         indiceUltimaCiudad = -1
         ciudad = self.ciudades[indexCiudad]
-        print("calculando distancia minima")
         ciudad_distancias = self.calculaDistanciasDadaCiudad(indexCiudad)
         # print(ciudad_distancias)
         secuencia_viaje = []
@@ -60,11 +80,12 @@ class pais:
             min_valor = min(listDistancias)
             # print("minimo: ",min_valor)
 
-            #aca llego con una ciudad y las distancias de las ciudades que no se visitaron
+            #en este punto tenemos una ciudad y las distancias de las ciudades que no se visitaron
+            
             index = listDistancias.index(min_valor) #indice de la ciudad con la distancia minima
             sumaKilometros = sumaKilometros + min_valor
             secuencia_viaje.append(self.ciudades[index])
-            ciudad_distancias = self.calculaDistanciasDadaCiudad(index) #esto esta bien,ya corroboré
+            ciudad_distancias = self.calculaDistanciasDadaCiudad(index) 
             # print("distancias desde la ciudad: ",self.ciudades[index], "son: ",ciudad_distancias)
             indiceUltimaCiudad = index
         
@@ -77,44 +98,37 @@ class pais:
         sumaKilometros = sumaKilometros + distanciaRetorno
         
         if(opcionMenu == 1):
-            print("----------------------------------------------------------------------")
-            print("Secuencia de viaje: ",secuencia_viaje)
-            print("----------------------------------------------------------------------")
-            print("----------------------------------------------------------------------")
-            print("Distancia total recorrida: ",sumaKilometros,"km")
-            m = folium.Map(
-                location=[-31.431276116867238, -64.19324578122779],
-                zoom_start=0,
-                )
-            for i in self.coordenadas:
-                folium.Marker([i[1],i[2]], popup=i[0]).add_to(m)
             
-            soloCoordenadas = []
-            for i in secuencia_viaje:
-                for j in self.coordenadas:
-                    if(i == j[0]):
-                        soloCoordenadas.append([j[1],j[2]])
-                        break
-            folium.PolyLine(locations=soloCoordenadas, color="red", weight=2.5, opacity=1).add_to(m)
-            # folium.PolyLine(locations=self.coordenadas, color="red", weight=2.5, opacity=1).add_to(m)
-            m.save('map.html')
+            print("\n----------------------------------------------------------------------")
+            print("Origen: ",secuencia_viaje[0])
+            print("\nSecuencia de viaje: ",secuencia_viaje)
+            print("\nDistancia total recorrida: ",sumaKilometros,"kms")
+            print("----------------------------------------------------------------------")
+            
+            self.generarMapa(secuencia_viaje,opcionMenu)
+            
             return
         else:
             return sumaKilometros,secuencia_viaje
 
     def calcularDistanciaMinimaGenetico(self):
-        print("calculando distancia minima con algoritmos geneticos")
+        print("Calculando distancia minima con algoritmos geneticos")
         pass
 
     def calcularRecorridoMinimo(self,opcionMenu):
         distanciaMenor = 10000000
         secuenciaViaje=[]
         for i in range(23):
-            [distanciaR,secuencia]=self.calcularDistanciaMinima(i,opcionMenu)
-            print("distancia de recorrido desde: ",self.ciudades[i], "es: ",distanciaR)
+            [distanciaR,secuencia] = self.calcularDistanciaMinima(i,opcionMenu)
+            print("Distancia de recorrido desde ",self.ciudades[i], ": ",distanciaR," kms")
             if(distanciaR<distanciaMenor):
                 distanciaMenor = distanciaR
                 secuenciaViaje = secuencia
-        print("----------------------------------------")
-        print("Menor recorrido: ",distanciaMenor)
+        self.generarMapa(secuenciaViaje,opcionMenu)
+        
+        print("\n----------------------------------------")
+        print("Menor recorrido: ", distanciaMenor," kms")
+        print("Origen: ",secuenciaViaje[0])
         print("Secuencia de viaje: ",secuenciaViaje)
+        print("----------------------------------------\n\n")
+        
