@@ -1,5 +1,7 @@
 # import xlwings as xw
 import random
+import time
+from colorama import Fore, Style
 import numpy as np
 import pandas as pd
 import folium 
@@ -71,6 +73,13 @@ class pais:
             plt.savefig('grafico_distancias.png')
         plt.close()
            
+    def printSecuencia(self,secuencia):
+            for i, ciudad in enumerate(secuencia):
+                if i == len(secuencia) - 1:
+                    print(ciudad)
+                else:
+                    print(ciudad, "→", end=" ")
+    
     def mostrarCiudades(self):
         for i in self.ciudades:
             print(i)
@@ -82,6 +91,8 @@ class pais:
         return self.distancias.iloc[indiceCiudad]
 
     def calcularDistanciaMinima(self, indexCiudad,opcionMenu):
+        inicio = time.time()
+        
         sumaKilometros = 0
         indicePrimeraCiudad = indexCiudad
         indiceUltimaCiudad = -1
@@ -124,20 +135,25 @@ class pais:
         sumaKilometros = sumaKilometros + distanciaRetorno
         
         if(opcionMenu == 1):
+            fin = time.time()
             
-            print("\n----------------------------------------------------------------------")
+            print("\n"+ Style.BRIGHT + Fore.YELLOW + "——" * 40 + Style.RESET_ALL)
             print("Origen: ",secuencia_viaje[0])
-            print("\nSecuencia de viaje: ",secuencia_viaje)
+            print("\nSecuencia de viaje:")
+            self.printSecuencia(secuencia_viaje)
             print("\nDistancia total recorrida: ",sumaKilometros,"kms")
-            print("----------------------------------------------------------------------")
+            print(Style.BRIGHT + Fore.YELLOW + "——" * 40 + Style.RESET_ALL)
+            print(f"Tiempo de ejecucion: {(fin-inicio)*(10**3):.2f} ms\n")
             
             self.generarMapa(secuencia_viaje,opcionMenu)
             
             return
         else:
             return sumaKilometros,secuencia_viaje
-
+        
     def calcularRecorridoMinimo(self,opcionMenu):
+        inicio = time.time()
+        
         distanciaMenor = 10000000
         secuenciaViaje=[]
         for i in range(23):
@@ -146,13 +162,17 @@ class pais:
             if(distanciaR<distanciaMenor):
                 distanciaMenor = distanciaR
                 secuenciaViaje = secuencia
+        
+        fin=time.time()
         self.generarMapa(secuenciaViaje,opcionMenu)
         
-        print("\n----------------------------------------")
-        print("Menor recorrido: ", distanciaMenor," kms")
-        print("Origen: ",secuenciaViaje[0])
-        print("Secuencia de viaje: ",secuenciaViaje)
-        print("----------------------------------------\n\n")
+        print("\n"+ Style.BRIGHT + Fore.YELLOW + "——" * 40 + Style.RESET_ALL)
+        print("Menor recorrido: ", distanciaMenor," kms\n")
+        print("Origen: ",secuenciaViaje[0],"\n")
+        print("Secuencia de viaje:")
+        self.printSecuencia(secuenciaViaje)
+        print(Style.BRIGHT + Fore.YELLOW + "——" * 40 + Style.RESET_ALL)
+        print(f"Tiempo de ejecucion: {(fin-inicio)*(10**3):.2f} ms\n")
         
     # def calcularRutaMinimaGeneticoElitismo(self):
     #     print("Calculando distancia minima con algoritmos geneticos")
@@ -361,20 +381,26 @@ class pais:
     #     self.generarGrafico(historial_fitness,"fitness")
 
     def calcularRutaMinimaGenetico(self, usar_elitismo=True):
-        ag = AlgoritmoGenetico(self.distancias, self.ciudades)  #instancia del algoritmo
+        inicio = time.time()
+        
+        ag = AlgoritmoGenetico(self.distancias, self.ciudades)  # Instancia del algoritmo
         resultado = ag.ejecutar(usar_elitismo)
+        
+        fin = time.time()
+                
+        print("\n"+ Style.BRIGHT + Fore.YELLOW + "——" * 40 + Style.RESET_ALL)
+        print(f"Menor recorrido encontrado: {resultado['distancia_total']:.2f} kms\n")
+        print("Origen:", resultado['mejor_ruta'][0],"\n")
+        print("Secuencia de viaje:")
+        self.printSecuencia(resultado['mejor_ruta'])
+        print(Style.BRIGHT + Fore.YELLOW + "——" * 40 + Style.RESET_ALL)
+        print(f"Tiempo de ejecucion: {(fin-inicio):.2f} segundos\n")
     
-        print("\n-------------------------------FIN----------------------------")
-        print(f"Menor recorrido encontrado: {resultado['distancia_total']:.2f} km")
-        print("Origen:", resultado['mejor_ruta'][0])
-        print("Secuencia de viaje:", resultado['mejor_ruta'])
-        print("-----------------------------------------------------------------\n")
-    
-        # Generar mapa
+        # Generar el mapa
         self.generarMapa(resultado['mejor_ruta'], 3)
         
-        # Genera gráficos
-        self.generarGrafico(resultado['historial_distancias'], "distancias",usar_elitismo)
+        # Generar los gráficos
+        self.generarGrafico(resultado['historial_distancias'], "distñancias",usar_elitismo)
         self.generarGrafico(resultado['historial_fitness'], "fitness",usar_elitismo)
 
         #TODO PONER TIEMPOS DE EJECUCION.
