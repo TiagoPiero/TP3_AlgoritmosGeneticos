@@ -6,9 +6,9 @@ from clases import pais
 #Funciones
 def menu():
     while (True):
-        print("1. Ingresar capital")
-        print("2. Recorrido minimo")
-        print("3. Recorrido minimo con geneticos")
+        print("1. Buscar ruta mínima desde origen")
+        print("2. Buscar recorrido minimo")
+        print("3. Buscar recorrido minimo con geneticos")
         print("4. Salir")
         option = int(input("Ingrese una opcion: "))
         if(validar_opcion(option)):
@@ -29,8 +29,9 @@ def ingresar_capital(pais,opcionMenu):
             break
     pais.calcularDistanciaMinima(opcion-1,opcionMenu)
 
-def calcular_distancia(pais):
-    pais.mostrarDistancias()
+# def calcular_distancia(pais):
+#     # pais.mostrarDistancias()
+#     pais.calcularRutaMinimaGeneticoElitismo()
 
 
 #programa principal
@@ -44,4 +45,13 @@ while(True):
     if(option == 2):
         paisInstance.calcularRecorridoMinimo(option)
     if(option == 3):
-        calcular_distancia(paisInstance)
+        print("1. Algoritmo Genético sin Elitismo")
+        print("2. Algoritmo Genético con Elitismo")
+        op = int(input("Ingrese una opcion: "))
+        if (op>0 and op<3):
+            if(op == 1):
+                paisInstance.calcularRutaMinimaGenetico(usar_elitismo=False)
+            else:
+                paisInstance.calcularRutaMinimaGenetico(usar_elitismo=True)
+        else:
+            print("Opcion invalida")
